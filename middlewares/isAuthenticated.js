@@ -10,7 +10,7 @@ function extractTokenFromHeaders(req, res) {
 }
 
 module.exports = jwt({
-  secret: process.env.TOKEN_SIGN_SECRET,
+  secret: process.env.JWT_SECRET,
   userProperty: "user",
   getToken: extractTokenFromHeaders,
   algorithms: ["HS256"],
