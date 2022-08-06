@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose'
 
-async function connect() {
+async function dbConnect() {
   try {
     // Não esquecer de criar variável de ambiente com endereço do seu servidor Mongo local em desenvolvimento, e o endereço do cluster do Atlas em produção
     const connection = await mongoose.connect(process.env.MONGODB_URI, {
@@ -15,4 +15,4 @@ async function connect() {
   }
 }
 
-module.exports = connect;
+export default dbConnect

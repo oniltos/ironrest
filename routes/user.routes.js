@@ -1,16 +1,18 @@
-const router = require("express").Router();
-const bcrypt = require("bcryptjs");
+import { Router } from 'express'
+import bcrypt from 'bcryptjs'
 
-const UserModel = require("../models/User.model");
-const generateToken = require("../config/jwt.config");
-const isAuthenticated = require("../middlewares/isAuthenticated");
-const attachCurrentUser = require("../middlewares/attachCurrentUser");
+import User from '../models/User.model.js'
+import generateToken from '../config/jwt.config.js';
+import isAuthenticated from '../middlewares/isAuthenticated.js'
+import attachCurrentUser from '../middlewares/attachCurrentUser.js';
 
-const salt_rounds = 10;
+const salt_rounds = process.env.SALT_ROUNDS;
+
+const userRouter = Router()
 
 // Crud (CREATE) - HTTP POST
 // Criar um novo usuário
-router.post("/signup", async (req, res) => {
+userRouter.post("/signup", async (req, res) => {
   // Requisições do tipo POST tem uma propriedade especial chamada body, que carrega a informação enviada pelo cliente
   console.log(req.body);
 
@@ -32,13 +34,13 @@ router.post("/signup", async (req, res) => {
     }
 
     // Gera o salt
-    const salt = await bcrypt.genSalt(salt_rounds);
+    const salt = bcrypt.genSaltSync(+salt_rounds);
 
     // Criptografa a senha
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = bcrypt.hashSync(password, salt);
 
     // Salva os dados de usuário no banco de dados (MongoDB) usando o body da requisição como parâmetro
-    const result = await UserModel.create({
+    const result = await User.create({
       ...req.body,
       passwordHash: hashedPassword,
     });
@@ -53,13 +55,13 @@ router.post("/signup", async (req, res) => {
 });
 
 // Login
-router.post("/login", async (req, res) => {
+userRouter.post("/login", async (req, res) => {
   try {
     // Extraindo o email e senha do corpo da requisição
     const { email, password } = req.body;
 
     // Pesquisar esse usuário no banco pelo email
-    const user = await UserModel.findOne({ email });
+    const user = await User.findOne({ email });
 
     console.log(user);
 
@@ -72,7 +74,7 @@ router.post("/login", async (req, res) => {
 
     // Verificar se a senha do usuário pesquisado bate com a senha recebida pelo formulário
 
-    if (await bcrypt.compare(password, user.passwordHash)) {
+    if (bcrypt.compareSync(password, user.passwordHash)) {
       // Gerando o JWT com os dados do usuário que acabou de logar
       const token = generateToken(user);
 
@@ -97,7 +99,7 @@ router.post("/login", async (req, res) => {
 
 // cRud (READ) - HTTP GET
 // Buscar dados do usuário
-router.get("/profile", isAuthenticated, attachCurrentUser, (req, res) => {
+userRouter.get("/profile", isAuthenticated, attachCurrentUser, (req, res) => {
   console.log(req.headers);
 
   try {
@@ -116,4 +118,4 @@ router.get("/profile", isAuthenticated, attachCurrentUser, (req, res) => {
   }
 });
 
-module.exports = router;
+export default userRouter;

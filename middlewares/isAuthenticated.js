@@ -1,4 +1,4 @@
-const jwt = require("express-jwt");
+import jwt from 'express-jwt';
 
 function extractTokenFromHeaders(req, res) {
   if (!req.headers.authorization) {
@@ -9,7 +9,7 @@ function extractTokenFromHeaders(req, res) {
   return req.headers.authorization.split(" ")[1];
 }
 
-module.exports = jwt({
+export default jwt({
   secret: process.env.JWT_SECRET,
   userProperty: "user",
   getToken: extractTokenFromHeaders,

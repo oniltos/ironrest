@@ -1,6 +1,6 @@
-const jwt = require("jsonwebtoken");
+import jwt from 'jsonwebtoken'
 
-module.exports = function generateToken(user) {
+function generateToken(user) {
   // A senha NUNCA pode ser enviada no token.
   const { _id, name, email, role } = user;
 
@@ -12,3 +12,5 @@ module.exports = function generateToken(user) {
     expiresIn: expiration,
   });
 };
+
+export default generateToken
